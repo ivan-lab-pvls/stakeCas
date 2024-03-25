@@ -30,13 +30,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  affise_attribution_lib:
+    git:
+      url: https://github.com/affise/flutter-sdk
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   shared_preferences: ^2.2.2
   in_app_review: ^2.0.8
+  http:
+  firebase_messaging: ^14.2.2
+  firebase_core: ^2.1.1
+  flutter_local_notifications: ^9.8.0+1
+  overlay_support: ^2.1.0
+  firebase_remote_config: ^4.3.3
+  firebase_analytics: ^10.6.3
+  advertising_id: ^2.6.0
+  app_tracking_transparency:
   animated_splash_screen: ^1.3.0
   dots_indicator: ^3.0.0
   rnd: ^0.2.0

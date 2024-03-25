@@ -1,7 +1,26 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:stake_trade/pages/home_page.dart';
+
+class NewItemScreen extends StatelessWidget {
+  final String details;
+
+  const NewItemScreen({Key? key, required this.details}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: InAppWebView(
+          initialUrlRequest: URLRequest(url: Uri.parse(details)),
+        ),
+      ),
+    );
+  }
+}
 
 class OnBoardingPage extends StatefulWidget {
   const OnBoardingPage({super.key});
