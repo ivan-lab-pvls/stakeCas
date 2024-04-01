@@ -11,6 +11,7 @@ class NewItemScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(details);
     return Scaffold(
       body: SafeArea(
         bottom: false,

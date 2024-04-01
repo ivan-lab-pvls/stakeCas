@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:affise_attribution_lib/affise.dart';
@@ -76,17 +77,43 @@ class _MyAppState extends State<MyApp> {
     Affise.getModulesInstalled().then((modules) {
       print("Modules: $modules");
     });
-    getRDID();
+    getDevice();
     Affise.getStatus(AffiseModules.ADVERTISING, (data) {
       print(data);
     });
   }
 
-  getRDID() async {
-    final String deviceId = await Affise.getRandomDeviceId();
-    Affise.getReferrer((value) {
-      print(value);
+  String camp = '';
+
+  Future<void> getDevice() async {
+    final String dev = await Affise.getRandomDeviceId();
+    Completer<void> completer = Completer<void>();
+    Affise.getStatus(AffiseModules.STATUS, (response) {
+      String campaignNameValue = '';
+      for (var item in response) {
+        if (item.key == 'campaign_name') {
+          campaignNameValue = item.value;
+          camp = campaignNameValue;
+          if (!completer.isCompleted) {
+            completer.complete();
+          }
+          break;
+        }
+      }
+      if (camp.isEmpty && !completer.isCompleted) {
+        completer.completeError("Campaign name not found");
+      }
     });
+
+    return Future.any([
+      completer.future,
+      Future.delayed(const Duration(seconds: 5), () {
+        if (!completer.isCompleted) {
+          camp = 'notFound';
+          completer.complete();
+        }
+      })
+    ]);
   }
 
   Future<bool> getBoolFromPrefs() async {
@@ -116,7 +143,7 @@ class _MyAppState extends State<MyApp> {
     if (!das.contains('newnill')) {
       if (response.headers.value(HttpHeaders.locationHeader).toString() !=
           exampleValue) {
-        promo = das;
+        promo = '$das&campaignId=$camp';
         return true;
       }
     }
