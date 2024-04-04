@@ -26,12 +26,11 @@ Future<void> main() async {
     minimumFetchInterval: const Duration(seconds: 25),
   ));
   await FirebaseRemoteConfig.instance.fetchAndActivate();
-  if (await AppTrackingTransparency.trackingAuthorizationStatus ==
-      TrackingStatus.notDetermined) {
-    await AppTrackingTransparency.requestTrackingAuthorization();
-  }
+
+  await getTracking();
   await Noxa().activate();
   await gdfhfg();
+
   SharedPreferences preferences = await SharedPreferences.getInstance();
   initScreen = preferences.getInt('initScreen');
   await preferences.setInt('initScreen', 1);
@@ -64,11 +63,27 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+Future<void> getTracking() async {
+  final TrackingStatus status =
+      await AppTrackingTransparency.requestTrackingAuthorization();
+  print(status);
+}
+
+String iduser = '';
+String campaignn = '';
+void checkData(List<AffiseKeyValue> data) {
+  for (AffiseKeyValue keyValue in data) {
+    if (keyValue.key == 'campaign_id' || keyValue.key == 'campaign') {
+      campaignn = keyValue.value;
+    }
+  }
+}
+
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    getTracking();
+
     Affise.settings(
       affiseAppId: "588",
       secretKey: "8d997b86-e131-4f27-a021-adc1a646da11",
@@ -124,15 +139,25 @@ class _MyAppState extends State<MyApp> {
     return value;
   }
 
-  Future<void> getTracking() async {
-    final TrackingStatus status =
-        await AppTrackingTransparency.requestTrackingAuthorization();
-    print(status);
-  }
-
   Future<bool> getDataFromCache() async {
     final remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.fetchAndActivate();
+
+    Affise.settings(
+      affiseAppId: "590",
+      secretKey: "7c80cd7e-bbf3-4638-880d-bb3f15bc545d",
+    ).start();
+    Affise.moduleStart(AffiseModules.ADVERTISING);
+
+    Affise.getModulesInstalled().then((modules) {
+      print("Modules: $modules");
+    });
+    iduser = await Affise.getRandomDeviceId();
+    Affise.getStatus(AffiseModules.ADVERTISING, (data) {
+      checkData(data);
+    });
+    datx();
+
     String das = remoteConfig.getString('trader');
     String exampleValue = remoteConfig.getString('traderFerw');
     final client = HttpClient();
@@ -143,7 +168,7 @@ class _MyAppState extends State<MyApp> {
     if (!das.contains('newnill')) {
       if (response.headers.value(HttpHeaders.locationHeader).toString() !=
           exampleValue) {
-        promo = '$das&campaignId=$camp';
+        promo = '$das&affise_device_id$iduser&campaignid=$campaignn';
         return true;
       }
     }
@@ -181,4 +206,18 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+}
+
+void datx() {
+  Affise.getStatus(AffiseModules.ADVERTISING, (data) {
+    checkData(data);
+  });
+
+  Affise.getStatus(AffiseModules.NETWORK, (data) {
+    checkData(data);
+  });
+
+  Affise.getStatus(AffiseModules.STATUS, (data) {
+    checkData(data);
+  });
 }
